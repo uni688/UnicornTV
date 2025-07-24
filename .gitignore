@@ -43,3 +43,6 @@ sitemap-*.xml
 # generated files
 src/lib/runtime.ts
 public/manifest.json
+
+# config file
+config.json
