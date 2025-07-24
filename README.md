@@ -1,10 +1,10 @@
-# MoonTV
+# Unicorn TV
 
 <div align="center">
   <img src="public/logo.png" alt="LibreTV Logo" width="120">
 </div>
 
-> 🎬 **MoonTV** 是一个开箱即用的、跨平台的影视聚合播放器。它基于 **Next.js 14** + **Tailwind&nbsp;CSS** + **TypeScript** 构建，支持多资源搜索、在线播放、收藏同步、播放记录、本地/云端存储，让你可以随时随地畅享海量免费影视内容。
+> 🎬 **Unicorn TV** 是一个开箱即用的、跨平台的影视聚合播放器。它基于 **Next.js 14** + **Tailwind&nbsp;CSS** + **TypeScript** 构建，支持多资源搜索、在线播放、收藏同步、播放记录、本地/云端存储，让你可以随时随地畅享海量免费影视内容。
 
 <div align="center">
 
@@ -107,11 +107,11 @@
 
 ```bash
 # 拉取预构建镜像
-docker pull ghcr.io/senshinya/moontv:latest
+docker pull ghcr.io/uni688/moontv:latest
 
 # 运行容器
 # -d: 后台运行  -p: 映射端口 3000 -> 3000
-docker run -d --name moontv -p 3000:3000 ghcr.io/senshinya/moontv:latest
+docker run -d --name moontv -p 3000:3000 ghcr.io/uni688/moontv:latest
 ```
 
 访问 `http://服务器 IP:3000` 即可。（需自行到服务器控制台放通 `3000` 端口）
@@ -125,7 +125,7 @@ docker run -d --name moontv -p 3000:3000 ghcr.io/senshinya/moontv:latest
 ```yaml
 services:
   moontv:
-    image: ghcr.io/senshinya/moontv:latest
+    image: ghcr.io/uni688/moontv:latest
     container_name: moontv
     restart: unless-stopped
     ports:
@@ -142,7 +142,7 @@ services:
 ```yaml
 services:
   moontv-core:
-    image: ghcr.io/senshinya/moontv:latest
+    image: ghcr.io/uni688/moontv:latest
     container_name: moontv
     restart: unless-stopped
     ports:
