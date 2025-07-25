@@ -55,12 +55,12 @@ interface UserCacheStore {
 }
 
 // ---- 常量 ----
-const PLAY_RECORDS_KEY = 'moontv_play_records';
-const FAVORITES_KEY = 'moontv_favorites';
-const SEARCH_HISTORY_KEY = 'moontv_search_history';
+const PLAY_RECORDS_KEY = 'unicorntv_play_records';
+const FAVORITES_KEY = 'unicorntv_favorites';
+const SEARCH_HISTORY_KEY = 'unicorntv_search_history';
 
 // 缓存相关常量
-const CACHE_PREFIX = 'moontv_cache_';
+const CACHE_PREFIX = 'unicorntv_cache_';
 const CACHE_VERSION = '1.0.0';
 const CACHE_EXPIRE_TIME = 60 * 60 * 1000; // 一小时缓存过期
 
