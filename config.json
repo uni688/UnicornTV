@@ -283,6 +283,35 @@
     "kcyun": {
       "api": "https://caiji.kczyapi.com/api.php/provide/vod",
       "name": "kcyun"
+    },
+    "kuaichuan": {
+      "api": "https://kuaichuanzy.com/api.php/provide/vod",
+      "name": "快传资源",
+      "detail": "https://kuaichuanzy.com"
+    },
+    "uhdzy": {
+      "api": "https://uhdzyapi.com/api.php/provide/vod",
+      "name": "UHD资源",
+      "detail": "https://uhdzyapi.com"
+    },
+    "gaopin": {
+      "api": "https://gaopinzy.com/api.php/provide/vod",
+      "name": "高品资源",
+      "detail": "https://gaopinzy.com"
+    },
+    "xinghe": {
+      "api": "https://xinghezy.tv/api.php/provide/vod",
+      "name": "星河影视",
+      "detail": "https://xinghezy.tv"
+    },
+    "qinglong": {
+      "api": "https://qlzyapi.com/api.php/provide/vod",
+      "name": "青龙资源"
+    },
+    "yingmi": {
+      "api": "https://yingmizy.com/api.php/provide/vod",
+      "name": "影迷资源",
+      "detail": "https://yingmizy.com"
     }
   }
 }
