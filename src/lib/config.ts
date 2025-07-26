@@ -238,6 +238,8 @@ export async function getConfig(): Promise<AdminConfig> {
       process.env.NEXT_PUBLIC_ENABLE_REGISTER === 'true';
     adminConfig.SiteConfig.ImageProxy =
       process.env.NEXT_PUBLIC_IMAGE_PROXY || '';
+    adminConfig.SiteConfig.DoubanProxy =
+      process.env.NEXT_PUBLIC_DOUBAN_PROXY || '';
 
     // 合并文件中的源信息
     fileConfig = runtimeConfig as unknown as ConfigFileStruct;

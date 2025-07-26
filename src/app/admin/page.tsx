@@ -1183,6 +1183,16 @@ const SiteConfigComponent = ({ config }: { config: AdminConfig | null }) => {
           }`}
         >
           豆瓣代理地址
+          {isD1Storage && (
+            <span className='ml-2 text-xs text-gray-500 dark:text-gray-400'>
+              (D1 环境下不可修改)
+            </span>
+          )}
+          {isUpstashStorage && (
+            <span className='ml-2 text-xs text-gray-500 dark:text-gray-400'>
+              (Upstash 环境下不可修改)
+            </span>
+          )}
         </label>
         <input
           type='text'
