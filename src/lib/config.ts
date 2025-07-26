@@ -159,6 +159,7 @@ async function initConfig() {
               Number(process.env.NEXT_PUBLIC_SEARCH_MAX_PAGE) || 5,
             SiteInterfaceCacheTime: fileConfig.cache_time || 7200,
             ImageProxy: process.env.NEXT_PUBLIC_IMAGE_PROXY || '',
+            DoubanProxy: process.env.NEXT_PUBLIC_DOUBAN_PROXY || '',
           },
           UserConfig: {
             AllowRegister: process.env.NEXT_PUBLIC_ENABLE_REGISTER === 'true',
@@ -197,6 +198,7 @@ async function initConfig() {
           Number(process.env.NEXT_PUBLIC_SEARCH_MAX_PAGE) || 5,
         SiteInterfaceCacheTime: fileConfig.cache_time || 7200,
         ImageProxy: process.env.NEXT_PUBLIC_IMAGE_PROXY || '',
+        DoubanProxy: process.env.NEXT_PUBLIC_DOUBAN_PROXY || '',
       },
       UserConfig: {
         AllowRegister: process.env.NEXT_PUBLIC_ENABLE_REGISTER === 'true',
@@ -341,6 +343,7 @@ export async function resetConfig() {
         Number(process.env.NEXT_PUBLIC_SEARCH_MAX_PAGE) || 5,
       SiteInterfaceCacheTime: fileConfig.cache_time || 7200,
       ImageProxy: process.env.NEXT_PUBLIC_IMAGE_PROXY || '',
+      DoubanProxy: process.env.NEXT_PUBLIC_DOUBAN_PROXY || '',
     },
     UserConfig: {
       AllowRegister: process.env.NEXT_PUBLIC_ENABLE_REGISTER === 'true',
