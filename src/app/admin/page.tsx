@@ -302,12 +302,12 @@ const UserConfig = ({ config, role, refreshConfig }: UserConfigProps) => {
             允许新用户注册
             {isD1Storage && (
               <span className='ml-2 text-xs text-gray-500 dark:text-gray-400'>
-                (D1 环境下不可修改)
+                (D1 环境下请通过环境变量修改)
               </span>
             )}
             {isUpstashStorage && (
               <span className='ml-2 text-xs text-gray-500 dark:text-gray-400'>
-                (Upstash 环境下不可修改)
+                (Upstash 环境下请通过环境变量修改)
               </span>
             )}
           </label>
@@ -1029,12 +1029,12 @@ const SiteConfigComponent = ({ config }: { config: AdminConfig | null }) => {
           站点名称
           {isD1Storage && (
             <span className='ml-2 text-xs text-gray-500 dark:text-gray-400'>
-              (D1 环境下不可修改)
+              (D1 环境下请通过环境变量修改)
             </span>
           )}
           {isUpstashStorage && (
             <span className='ml-2 text-xs text-gray-500 dark:text-gray-400'>
-              (Upstash 环境下不可修改)
+              (Upstash 环境下请通过环境变量修改)
             </span>
           )}
         </label>
@@ -1065,12 +1065,12 @@ const SiteConfigComponent = ({ config }: { config: AdminConfig | null }) => {
           站点公告
           {isD1Storage && (
             <span className='ml-2 text-xs text-gray-500 dark:text-gray-400'>
-              (D1 环境下不可修改)
+              (D1 环境下请通过环境变量修改)
             </span>
           )}
           {isUpstashStorage && (
             <span className='ml-2 text-xs text-gray-500 dark:text-gray-400'>
-              (Upstash 环境下不可修改)
+              (Upstash 环境下请通过环境变量修改)
             </span>
           )}
         </label>
@@ -1142,12 +1142,12 @@ const SiteConfigComponent = ({ config }: { config: AdminConfig | null }) => {
           图片代理前缀
           {isD1Storage && (
             <span className='ml-2 text-xs text-gray-500 dark:text-gray-400'>
-              (D1 环境下不可修改)
+              (D1 环境下请通过环境变量修改)
             </span>
           )}
           {isUpstashStorage && (
             <span className='ml-2 text-xs text-gray-500 dark:text-gray-400'>
-              (Upstash 环境下不可修改)
+              (Upstash 环境下请通过环境变量修改)
             </span>
           )}
         </label>
@@ -1185,12 +1185,12 @@ const SiteConfigComponent = ({ config }: { config: AdminConfig | null }) => {
           豆瓣代理地址
           {isD1Storage && (
             <span className='ml-2 text-xs text-gray-500 dark:text-gray-400'>
-              (D1 环境下不可修改)
+              (D1 环境下请通过环境变量修改)
             </span>
           )}
           {isUpstashStorage && (
             <span className='ml-2 text-xs text-gray-500 dark:text-gray-400'>
-              (Upstash 环境下不可修改)
+              (Upstash 环境下请通过环境变量修改)
             </span>
           )}
         </label>
