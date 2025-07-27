@@ -6,5 +6,6 @@ pnpm gen:version
 
 # 自动添加修改的版本文件
 git add src/lib/version.ts
+git add VERSION.txt
 
 npx lint-staged

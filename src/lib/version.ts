@@ -2,7 +2,7 @@
 
 'use client';
 
-const CURRENT_VERSION = '20250728004845';
+const CURRENT_VERSION = '20250728004933';
 
 // 远程版本检查URL配置
 const VERSION_CHECK_URLS = [
