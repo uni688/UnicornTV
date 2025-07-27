@@ -2,7 +2,14 @@
 
 'use client';
 
-const CURRENT_VERSION = '20250728004933';
+const CURRENT_VERSION = '20250728012011';
+
+// 版本检查结果枚举
+export enum UpdateStatus {
+  HAS_UPDATE = 'has_update', // 有新版本
+  NO_UPDATE = 'no_update', // 无新版本
+  FETCH_FAILED = 'fetch_failed', // 获取失败
+}
 
 // 远程版本检查URL配置
 const VERSION_CHECK_URLS = [
@@ -12,9 +19,9 @@ const VERSION_CHECK_URLS = [
 
 /**
  * 检查是否有新版本可用
- * @returns Promise<boolean> - true表示有新版本，false表示当前版本是最新的
+ * @returns Promise<UpdateStatus> - 返回版本检查状态
  */
-export async function checkForUpdates(): Promise<boolean> {
+export async function checkForUpdates(): Promise<UpdateStatus> {
   try {
     // 尝试从主要URL获取版本信息
     const primaryVersion = await fetchVersionFromUrl(VERSION_CHECK_URLS[0]);
@@ -28,11 +35,11 @@ export async function checkForUpdates(): Promise<boolean> {
       return compareVersions(backupVersion);
     }
 
-    // 如果两个URL都失败，返回false（假设当前版本是最新的）
-    return false;
+    // 如果两个URL都失败，返回获取失败状态
+    return UpdateStatus.FETCH_FAILED;
   } catch (error) {
     console.error('版本检查失败:', error);
-    return false;
+    return UpdateStatus.FETCH_FAILED;
   }
 }
 
@@ -71,18 +78,18 @@ async function fetchVersionFromUrl(url: string): Promise<string | null> {
 /**
  * 比较版本号
  * @param remoteVersion - 远程版本号
- * @returns boolean - true表示远程版本更新
+ * @returns UpdateStatus - 返回版本比较结果
  */
-function compareVersions(remoteVersion: string): boolean {
+function compareVersions(remoteVersion: string): UpdateStatus {
   try {
     // 将版本号转换为数字进行比较
     const current = parseInt(CURRENT_VERSION, 10);
     const remote = parseInt(remoteVersion, 10);
 
-    return remote !== current;
+    return remote > current ? UpdateStatus.HAS_UPDATE : UpdateStatus.NO_UPDATE;
   } catch (error) {
     console.error('版本比较失败:', error);
-    return false;
+    return UpdateStatus.FETCH_FAILED;
   }
 }
 

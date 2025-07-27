@@ -8,7 +8,7 @@ import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 import { getAuthInfoFromBrowserCookie } from '@/lib/auth';
-import { checkForUpdates, CURRENT_VERSION } from '@/lib/version';
+import { checkForUpdates, CURRENT_VERSION, UpdateStatus } from '@/lib/version';
 
 interface AuthInfo {
   username?: string;
@@ -39,7 +39,8 @@ export const UserMenu: React.FC = () => {
   const [passwordError, setPasswordError] = useState('');
 
   // 版本检查相关状态
-  const [hasUpdate, setHasUpdate] = useState(false);
+  const [updateStatus, setUpdateStatus] = useState<UpdateStatus | null>(null);
+  const [isChecking, setIsChecking] = useState(true);
 
   // 确保组件已挂载
   useEffect(() => {
@@ -112,10 +113,12 @@ export const UserMenu: React.FC = () => {
   useEffect(() => {
     const checkUpdate = async () => {
       try {
-        const updateAvailable = await checkForUpdates();
-        setHasUpdate(updateAvailable);
+        const status = await checkForUpdates();
+        setUpdateStatus(status);
       } catch (error) {
         console.warn('版本检查失败:', error);
+      } finally {
+        setIsChecking(false);
       }
     };
 
@@ -415,9 +418,19 @@ export const UserMenu: React.FC = () => {
           >
             <div className='flex items-center gap-1'>
               <span className='font-mono'>v{CURRENT_VERSION}</span>
-              {hasUpdate && (
-                <div className='w-2 h-2 bg-yellow-500 rounded-full -translate-y-1'></div>
-              )}
+              {!isChecking &&
+                updateStatus &&
+                updateStatus !== UpdateStatus.FETCH_FAILED && (
+                  <div
+                    className={`w-2 h-2 rounded-full -translate-y-2 ${
+                      updateStatus === UpdateStatus.HAS_UPDATE
+                        ? 'bg-yellow-500'
+                        : updateStatus === UpdateStatus.NO_UPDATE
+                        ? 'bg-green-400'
+                        : ''
+                    }`}
+                  ></div>
+                )}
             </div>
           </button>
         </div>
@@ -725,7 +738,7 @@ export const UserMenu: React.FC = () => {
         >
           <User className='w-full h-full' />
         </button>
-        {hasUpdate && (
+        {updateStatus === UpdateStatus.HAS_UPDATE && (
           <div className='absolute top-[2px] right-[2px] w-2 h-2 bg-yellow-500 rounded-full'></div>
         )}
       </div>
