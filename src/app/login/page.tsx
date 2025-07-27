@@ -5,8 +5,54 @@
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
 
+import { checkForUpdates, CURRENT_VERSION } from '@/lib/version';
+
 import { useSite } from '@/components/SiteProvider';
 import { ThemeToggle } from '@/components/ThemeToggle';
+
+// 版本显示组件
+function VersionDisplay() {
+  const [hasUpdate, setHasUpdate] = useState(false);
+  const [isChecking, setIsChecking] = useState(true);
+
+  useEffect(() => {
+    const checkUpdate = async () => {
+      try {
+        const updateAvailable = await checkForUpdates();
+        setHasUpdate(updateAvailable);
+      } catch (_) {
+        // do nothing
+      } finally {
+        setIsChecking(false);
+      }
+    };
+
+    checkUpdate();
+  }, []);
+
+  return (
+    <button
+      onClick={() =>
+        window.open('https://github.com/senshinya/MoonTV', '_blank')
+      }
+      className='absolute bottom-4 left-1/2 transform -translate-x-1/2 flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 transition-colors cursor-pointer'
+    >
+      <span className='font-mono'>v{CURRENT_VERSION}</span>
+      {!isChecking && hasUpdate && (
+        <div className='flex items-center gap-1.5 text-green-600 dark:text-green-400'>
+          <svg className='w-3.5 h-3.5' fill='currentColor' viewBox='0 0 20 20'>
+            <path
+              fillRule='evenodd'
+              d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
+              clipRule='evenodd'
+            />
+          </svg>
+          <span className='font-semibold text-xs'>有新版本</span>
+        </div>
+      )}
+    </button>
+  );
+}
 
 function LoginPageClient() {
   const router = useRouter();
@@ -170,6 +216,9 @@ function LoginPageClient() {
           )}
         </form>
       </div>
+
+      {/* 版本信息显示 */}
+      <VersionDisplay />
     </div>
   );
 }
