@@ -1397,7 +1397,14 @@ function PlayPageClient() {
           duration > 0 &&
           currentTime > skipConfigRef.current.outro_time
         ) {
-          handleNextEpisode();
+          if (
+            currentEpisodeIndexRef.current <
+            (detailRef.current?.episodes?.length || 1) - 1
+          ) {
+            handleNextEpisode();
+          } else {
+            artPlayerRef.current.pause();
+          }
           artPlayerRef.current.notice.show = `已跳过片尾 (${formatTime(
             skipConfigRef.current.outro_time
           )})`;
