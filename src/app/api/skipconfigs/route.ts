@@ -6,6 +6,8 @@ import { getAuthInfoFromCookie } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { SkipConfig } from '@/lib/types';
 
+export const runtime = 'edge';
+
 export async function GET(request: NextRequest) {
   try {
     const authInfo = getAuthInfoFromCookie(request);
