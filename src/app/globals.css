@@ -11,6 +11,11 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none; /* Chrome, Safari and Opera */
   }
+
+  /* iOS Safari 安全区域工具类 */
+  .pb-safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
 }
 
 :root {
@@ -23,10 +28,15 @@ body {
   overflow-x: hidden;
   /* 阻止 iOS Safari 拉动回弹 */
   overscroll-behavior: none;
+  /* 支持 iOS Safari 安全区域 */
+  padding: env(safe-area-inset-top) env(safe-area-inset-right)
+    env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 
 body {
   color: rgb(var(--foreground-rgb));
+  /* iOS Safari 安全区域背景适配 */
+  background-color: #f7f7f3;
 }
 
 html:not(.dark) body {
