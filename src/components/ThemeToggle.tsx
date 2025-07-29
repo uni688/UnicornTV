@@ -20,11 +20,6 @@ export function ThemeToggle() {
     } else {
       meta.setAttribute('content', theme === 'dark' ? '#0c111c' : '#f9fbfe');
     }
-
-    document.documentElement.style.backgroundColor =
-      theme === 'dark' ? '#0c111c' : '#f9fbfe';
-    document.body.style.backgroundColor =
-      theme === 'dark' ? '#0c111c' : '#f9fbfe';
   };
 
   useEffect(() => {
