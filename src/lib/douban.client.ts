@@ -163,7 +163,7 @@ export async function getDoubanList(
     return fetchDoubanList(params);
   } else {
     const response = await fetch(
-      `/api/douban?tag=${tag}&type=${type}&limit=${pageLimit}&start=${pageStart}`
+      `/api/douban?tag=${tag}&type=${type}&pageSize=${pageLimit}&pageStart=${pageStart}`
     );
 
     if (!response.ok) {
