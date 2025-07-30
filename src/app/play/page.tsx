@@ -147,6 +147,8 @@ function PlayPageClient() {
   const resumeTimeRef = useRef<number | null>(null);
   // 上次使用的音量，默认 0.7
   const lastVolumeRef = useRef<number>(0.7);
+  // 上次使用的播放速率，默认 1.0
+  const lastPlaybackRateRef = useRef<number>(1.0);
 
   // 换源相关状态
   const [availableSources, setAvailableSources] = useState<SearchResult[]>([]);
@@ -1354,6 +1356,9 @@ function PlayPageClient() {
       artPlayerRef.current.on('video:volumechange', () => {
         lastVolumeRef.current = artPlayerRef.current.volume;
       });
+      artPlayerRef.current.on('video:ratechange', () => {
+        lastPlaybackRateRef.current = artPlayerRef.current.playbackRate;
+      });
 
       // 监听视频可播放事件，这时恢复播放进度更可靠
       artPlayerRef.current.on('video:canplay', () => {
@@ -1378,6 +1383,14 @@ function PlayPageClient() {
             Math.abs(artPlayerRef.current.volume - lastVolumeRef.current) > 0.01
           ) {
             artPlayerRef.current.volume = lastVolumeRef.current;
+          }
+          if (
+            Math.abs(
+              artPlayerRef.current.playbackRate - lastPlaybackRateRef.current
+            ) > 0.01 &&
+            isWebkit
+          ) {
+            artPlayerRef.current.playbackRate = lastPlaybackRateRef.current;
           }
           artPlayerRef.current.notice.show = '';
         }, 0);
