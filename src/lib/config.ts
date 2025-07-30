@@ -95,21 +95,23 @@ async function initConfig() {
 
       if (adminConfig) {
         // 补全 SourceConfig
-        const existed = new Set(
-          (adminConfig.SourceConfig || []).map((s) => s.key)
+        const sourceConfigMap = new Map(
+          (adminConfig.SourceConfig || []).map((s) => [s.key, s])
         );
+
         apiSiteEntries.forEach(([key, site]) => {
-          if (!existed.has(key)) {
-            adminConfig!.SourceConfig.push({
-              key,
-              name: site.name,
-              api: site.api,
-              detail: site.detail,
-              from: 'config',
-              disabled: false,
-            });
-          }
+          sourceConfigMap.set(key, {
+            key,
+            name: site.name,
+            api: site.api,
+            detail: site.detail,
+            from: 'config',
+            disabled: false,
+          });
         });
+
+        // 将 Map 转换回数组
+        adminConfig.SourceConfig = Array.from(sourceConfigMap.values());
 
         // 检查现有源是否在 fileConfig.api_site 中，如果不在则标记为 custom
         const apiSiteKeys = new Set(apiSiteEntries.map(([key]) => key));
@@ -125,30 +127,32 @@ async function initConfig() {
         }
 
         // 补全 CustomCategories
-        const existedCustomCategories = new Set(
-          adminConfig.CustomCategories.map((c) => c.query + c.type)
+        const customCategoriesMap = new Map(
+          adminConfig.CustomCategories.map((c) => [c.query + c.type, c])
         );
+
         customCategories.forEach((category) => {
-          if (!existedCustomCategories.has(category.query + category.type)) {
-            adminConfig!.CustomCategories.push({
-              name: category.name,
-              type: category.type,
-              query: category.query,
-              from: 'config',
-              disabled: false,
-            });
-          }
+          customCategoriesMap.set(category.query + category.type, {
+            name: category.name,
+            type: category.type,
+            query: category.query,
+            from: 'config',
+            disabled: false,
+          });
         });
 
         // 检查现有 CustomCategories 是否在 fileConfig.custom_category 中，如果不在则标记为 custom
         const customCategoriesKeys = new Set(
           customCategories.map((c) => c.query + c.type)
         );
-        adminConfig.CustomCategories.forEach((category) => {
+        customCategoriesMap.forEach((category) => {
           if (!customCategoriesKeys.has(category.query + category.type)) {
             category.from = 'custom';
           }
         });
+
+        // 将 Map 转换回数组
+        adminConfig.CustomCategories = Array.from(customCategoriesMap.values());
 
         const existedUsers = new Set(
           (adminConfig.UserConfig.Users || []).map((u) => u.username)
@@ -301,54 +305,60 @@ export async function getConfig(): Promise<AdminConfig> {
     // 合并文件中的源信息
     fileConfig = runtimeConfig as unknown as ConfigFileStruct;
     const apiSiteEntries = Object.entries(fileConfig.api_site);
-    const existed = new Set((adminConfig.SourceConfig || []).map((s) => s.key));
+    const sourceConfigMap = new Map(
+      (adminConfig.SourceConfig || []).map((s) => [s.key, s])
+    );
+
     apiSiteEntries.forEach(([key, site]) => {
-      if (!existed.has(key)) {
-        adminConfig!.SourceConfig.push({
-          key,
-          name: site.name,
-          api: site.api,
-          detail: site.detail,
-          from: 'config',
-          disabled: false,
-        });
-      }
+      sourceConfigMap.set(key, {
+        key,
+        name: site.name,
+        api: site.api,
+        detail: site.detail,
+        from: 'config',
+        disabled: false,
+      });
     });
 
     // 检查现有源是否在 fileConfig.api_site 中，如果不在则标记为 custom
     const apiSiteKeys = new Set(apiSiteEntries.map(([key]) => key));
-    adminConfig.SourceConfig.forEach((source) => {
+    sourceConfigMap.forEach((source) => {
       if (!apiSiteKeys.has(source.key)) {
         source.from = 'custom';
       }
     });
 
+    // 将 Map 转换回数组
+    adminConfig.SourceConfig = Array.from(sourceConfigMap.values());
+
     // 补全 CustomCategories
     const customCategories = fileConfig.custom_category || [];
-    const existedCustomCategories = new Set(
-      adminConfig.CustomCategories.map((c) => c.query + c.type)
+    const customCategoriesMap = new Map(
+      adminConfig.CustomCategories.map((c) => [c.query + c.type, c])
     );
+
     customCategories.forEach((category) => {
-      if (!existedCustomCategories.has(category.query + category.type)) {
-        adminConfig!.CustomCategories.push({
-          name: category.name,
-          type: category.type,
-          query: category.query,
-          from: 'config',
-          disabled: false,
-        });
-      }
+      customCategoriesMap.set(category.query + category.type, {
+        name: category.name,
+        type: category.type,
+        query: category.query,
+        from: 'config',
+        disabled: false,
+      });
     });
 
     // 检查现有 CustomCategories 是否在 fileConfig.custom_categories 中，如果不在则标记为 custom
     const customCategoriesKeys = new Set(
       customCategories.map((c) => c.query + c.type)
     );
-    adminConfig.CustomCategories.forEach((category) => {
+    customCategoriesMap.forEach((category) => {
       if (!customCategoriesKeys.has(category.query + category.type)) {
         category.from = 'custom';
       }
     });
+
+    // 将 Map 转换回数组
+    adminConfig.CustomCategories = Array.from(customCategoriesMap.values());
 
     const ownerUser = process.env.USERNAME || '';
     // 检查配置中的站长用户是否和 USERNAME 匹配，如果不匹配则降级为普通用户
@@ -406,7 +416,6 @@ export async function resetConfig() {
     fileConfig = runtimeConfig as unknown as ConfigFileStruct;
   }
 
-  // 从文件中获取源信息，用于补全源
   const apiSiteEntries = Object.entries(fileConfig.api_site);
   const customCategories = fileConfig.custom_category || [];
   let allUsers = userNames.map((uname) => ({

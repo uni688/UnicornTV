@@ -24,7 +24,7 @@
       "name": "黑木耳(国内)"
     },
     "ruyi": {
-      "api": "https://cj.rycjapi.com/api.php/provide/vod",
+      "api": "http://cj.rycjapi.com/api.php/provide/vod",
       "name": "如意资源"
     },
     "bfzy": {
