@@ -1318,18 +1318,22 @@ function PlayPageClient() {
             html: '设置片尾',
             icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 6L7 18" stroke="#ffffff" stroke-width="2"/><path d="M7 12L15 12" stroke="#ffffff" stroke-width="2"/><circle cx="19" cy="12" r="2" fill="#ffffff"/></svg>',
             tooltip:
-              skipConfig.outro_time === 0
+              skipConfig.outro_time >= 0
                 ? '设置片尾时间'
-                : `${formatTime(skipConfig.outro_time)}`,
+                : `-${formatTime(-skipConfig.outro_time)}`,
             onClick: function () {
-              const currentTime = artPlayerRef.current?.currentTime || 0;
-              if (currentTime > 0) {
+              const outroTime =
+                -(
+                  artPlayerRef.current?.duration -
+                  artPlayerRef.current?.currentTime
+                ) || 0;
+              if (outroTime < 0) {
                 const newConfig = {
                   ...skipConfig,
-                  outro_time: currentTime,
+                  outro_time: outroTime,
                 };
                 handleSkipConfigChange(newConfig);
-                return `${formatTime(currentTime)}`;
+                return `-${formatTime(-outroTime)}`;
               }
             },
           },
@@ -1424,9 +1428,10 @@ function PlayPageClient() {
 
         // 跳过片尾
         if (
-          skipConfigRef.current.outro_time > 0 &&
+          skipConfigRef.current.outro_time < 0 &&
           duration > 0 &&
-          currentTime > skipConfigRef.current.outro_time
+          currentTime >
+            artPlayerRef.current.duration + skipConfigRef.current.outro_time
         ) {
           if (
             currentEpisodeIndexRef.current <
