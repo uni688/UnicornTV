@@ -40,10 +40,16 @@ const DoubanCustomSelector: React.FC<DoubanCustomSelectorProps> = ({
     width: number;
   }>({ left: 0, width: 0 });
 
-  // 根据 customCategories 生成一级选择器选项（按 type 分组）
+  // 根据 customCategories 生成一级选择器选项（按 type 分组，电影优先）
   const primaryOptions = React.useMemo(() => {
     const types = Array.from(new Set(customCategories.map((cat) => cat.type)));
-    return types.map((type) => ({
+    // 确保电影类型排在前面
+    const sortedTypes = types.sort((a, b) => {
+      if (a === 'movie' && b !== 'movie') return -1;
+      if (a !== 'movie' && b === 'movie') return 1;
+      return 0;
+    });
+    return sortedTypes.map((type) => ({
       label: type === 'movie' ? '电影' : '剧集',
       value: type,
     }));

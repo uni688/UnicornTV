@@ -72,17 +72,23 @@ function DoubanPageClient() {
   // 当type变化时重置选择器状态
   useEffect(() => {
     if (type === 'custom' && customCategories.length > 0) {
-      // 自定义分类模式：根据 customCategories 设置初始状态
+      // 自定义分类模式：优先选择 movie，如果没有 movie 则选择 tv
       const types = Array.from(
         new Set(customCategories.map((cat) => cat.type))
       );
       if (types.length > 0) {
-        const firstType = types[0];
-        setPrimarySelection(firstType);
+        // 优先选择 movie，如果没有 movie 则选择 tv
+        let selectedType = types[0]; // 默认选择第一个
+        if (types.includes('movie')) {
+          selectedType = 'movie';
+        } else {
+          selectedType = 'tv';
+        }
+        setPrimarySelection(selectedType);
 
-        // 设置第一个分类的 query 作为二级选择
+        // 设置选中类型的第一个分类的 query 作为二级选择
         const firstCategory = customCategories.find(
-          (cat) => cat.type === firstType
+          (cat) => cat.type === selectedType
         );
         if (firstCategory) {
           setSecondarySelection(firstCategory.query);
