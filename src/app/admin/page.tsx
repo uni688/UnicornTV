@@ -1615,54 +1615,56 @@ const SiteConfigComponent = ({ config }: { config: AdminConfig | null }) => {
 
       {/* 禁用黄色过滤器 */}
       <div>
-        <label
-          className={`block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 ${
-            isD1Storage || isUpstashStorage ? 'opacity-50' : ''
-          }`}
-        >
-          禁用黄色过滤器
-          {isD1Storage && (
-            <span className='ml-2 text-xs text-gray-500 dark:text-gray-400'>
-              (D1 环境下请通过环境变量修改)
-            </span>
-          )}
-          {isUpstashStorage && (
-            <span className='ml-2 text-xs text-gray-500 dark:text-gray-400'>
-              (Upstash 环境下请通过环境变量修改)
-            </span>
-          )}
-        </label>
-        <div className='flex items-center'>
-          <input
-            type='checkbox'
-            id='disableYellowFilter'
-            checked={siteSettings.DisableYellowFilter}
-            onChange={(e) =>
+        <div className='flex items-center justify-between'>
+          <label
+            className={`block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 ${
+              isD1Storage || isUpstashStorage ? 'opacity-50' : ''
+            }`}
+          >
+            禁用黄色过滤器
+            {isD1Storage && (
+              <span className='ml-2 text-xs text-gray-500 dark:text-gray-400'>
+                (D1 环境下请通过环境变量修改)
+              </span>
+            )}
+            {isUpstashStorage && (
+              <span className='ml-2 text-xs text-gray-500 dark:text-gray-400'>
+                (Upstash 环境下请通过环境变量修改)
+              </span>
+            )}
+          </label>
+          <button
+            type='button'
+            onClick={() =>
               !isD1Storage &&
               !isUpstashStorage &&
               setSiteSettings((prev) => ({
                 ...prev,
-                DisableYellowFilter: e.target.checked,
+                DisableYellowFilter: !prev.DisableYellowFilter,
               }))
             }
             disabled={isD1Storage || isUpstashStorage}
-            className={`w-4 h-4 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500 dark:focus:ring-green-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 ${
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 ${
+              siteSettings.DisableYellowFilter
+                ? 'bg-green-600'
+                : 'bg-gray-200 dark:bg-gray-700'
+            } ${
               isD1Storage || isUpstashStorage
                 ? 'opacity-50 cursor-not-allowed'
                 : ''
             }`}
-          />
-          <label
-            htmlFor='disableYellowFilter'
-            className={`ml-2 text-sm text-gray-700 dark:text-gray-300 ${
-              isD1Storage || isUpstashStorage ? 'opacity-50' : ''
-            }`}
           >
-            启用后将禁用黄色内容过滤功能
-          </label>
+            <span
+              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                siteSettings.DisableYellowFilter
+                  ? 'translate-x-6'
+                  : 'translate-x-1'
+              }`}
+            />
+          </button>
         </div>
         <p className='mt-1 text-xs text-gray-500 dark:text-gray-400'>
-          启用此选项将禁用黄色内容的过滤功能，允许显示所有内容。
+          禁用黄色内容的过滤功能，允许显示所有内容。
         </p>
       </div>
 
