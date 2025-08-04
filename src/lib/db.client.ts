@@ -390,9 +390,30 @@ if (typeof window !== 'undefined') {
 }
 
 // ---- 工具函数 ----
+/**
+ * 通用的 fetch 函数，处理 401 状态码自动跳转登录
+ */
+async function fetchWithAuth(
+  url: string,
+  options?: RequestInit
+): Promise<Response> {
+  const res = await fetch(url, options);
+  if (!res.ok) {
+    // 如果是 401 未授权，跳转到登录页面
+    if (res.status === 401) {
+      const currentUrl = window.location.pathname + window.location.search;
+      const loginUrl = new URL('/login', window.location.origin);
+      loginUrl.searchParams.set('redirect', currentUrl);
+      window.location.href = loginUrl.toString();
+      throw new Error('用户未授权，已跳转到登录页面');
+    }
+    throw new Error(`请求 ${url} 失败: ${res.status}`);
+  }
+  return res;
+}
+
 async function fetchFromApi<T>(path: string): Promise<T> {
-  const res = await fetch(path);
-  if (!res.ok) throw new Error(`请求 ${path} 失败: ${res.status}`);
+  const res = await fetchWithAuth(path);
   return (await res.json()) as T;
 }
 
@@ -493,17 +514,13 @@ export async function savePlayRecord(
 
     // 异步同步到数据库
     try {
-      const res = await fetch('/api/playrecords', {
+      await fetchWithAuth('/api/playrecords', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ key, record }),
       });
-
-      if (!res.ok) {
-        throw new Error(`保存播放记录失败: ${res.status}`);
-      }
     } catch (err) {
       await handleDatabaseOperationFailure('playRecords', err);
       throw err;
@@ -558,13 +575,9 @@ export async function deletePlayRecord(
 
     // 异步同步到数据库
     try {
-      const res = await fetch(
-        `/api/playrecords?key=${encodeURIComponent(key)}`,
-        {
-          method: 'DELETE',
-        }
-      );
-      if (!res.ok) throw new Error(`删除播放记录失败: ${res.status}`);
+      await fetchWithAuth(`/api/playrecords?key=${encodeURIComponent(key)}`, {
+        method: 'DELETE',
+      });
     } catch (err) {
       await handleDatabaseOperationFailure('playRecords', err);
       throw err;
@@ -684,14 +697,13 @@ export async function addSearchHistory(keyword: string): Promise<void> {
 
     // 异步同步到数据库
     try {
-      const res = await fetch('/api/searchhistory', {
+      await fetchWithAuth('/api/searchhistory', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ keyword: trimmed }),
       });
-      if (!res.ok) throw new Error(`保存搜索历史失败: ${res.status}`);
     } catch (err) {
       await handleDatabaseOperationFailure('searchHistory', err);
     }
@@ -738,10 +750,9 @@ export async function clearSearchHistory(): Promise<void> {
 
     // 异步同步到数据库
     try {
-      const res = await fetch(`/api/searchhistory`, {
+      await fetchWithAuth(`/api/searchhistory`, {
         method: 'DELETE',
       });
-      if (!res.ok) throw new Error(`清空搜索历史失败: ${res.status}`);
     } catch (err) {
       await handleDatabaseOperationFailure('searchHistory', err);
     }
@@ -782,13 +793,12 @@ export async function deleteSearchHistory(keyword: string): Promise<void> {
 
     // 异步同步到数据库
     try {
-      const res = await fetch(
+      await fetchWithAuth(
         `/api/searchhistory?keyword=${encodeURIComponent(trimmed)}`,
         {
           method: 'DELETE',
         }
       );
-      if (!res.ok) throw new Error(`删除搜索历史失败: ${res.status}`);
     } catch (err) {
       await handleDatabaseOperationFailure('searchHistory', err);
     }
@@ -902,14 +912,13 @@ export async function saveFavorite(
 
     // 异步同步到数据库
     try {
-      const res = await fetch('/api/favorites', {
+      await fetchWithAuth('/api/favorites', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ key, favorite }),
       });
-      if (!res.ok) throw new Error(`保存收藏失败: ${res.status}`);
     } catch (err) {
       await handleDatabaseOperationFailure('favorites', err);
       throw err;
@@ -964,10 +973,9 @@ export async function deleteFavorite(
 
     // 异步同步到数据库
     try {
-      const res = await fetch(`/api/favorites?key=${encodeURIComponent(key)}`, {
+      await fetchWithAuth(`/api/favorites?key=${encodeURIComponent(key)}`, {
         method: 'DELETE',
       });
-      if (!res.ok) throw new Error(`删除收藏失败: ${res.status}`);
     } catch (err) {
       await handleDatabaseOperationFailure('favorites', err);
       throw err;
@@ -1069,11 +1077,10 @@ export async function clearAllPlayRecords(): Promise<void> {
 
     // 异步同步到数据库
     try {
-      const res = await fetch(`/api/playrecords`, {
+      await fetchWithAuth(`/api/playrecords`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
       });
-      if (!res.ok) throw new Error(`清空播放记录失败: ${res.status}`);
     } catch (err) {
       await handleDatabaseOperationFailure('playRecords', err);
       throw err;
@@ -1110,11 +1117,10 @@ export async function clearAllFavorites(): Promise<void> {
 
     // 异步同步到数据库
     try {
-      const res = await fetch(`/api/favorites`, {
+      await fetchWithAuth(`/api/favorites`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
       });
-      if (!res.ok) throw new Error(`清空收藏失败: ${res.status}`);
     } catch (err) {
       await handleDatabaseOperationFailure('favorites', err);
       throw err;
@@ -1390,14 +1396,13 @@ export async function saveSkipConfig(
 
     // 异步同步到数据库
     try {
-      const res = await fetch('/api/skipconfigs', {
+      await fetchWithAuth('/api/skipconfigs', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ key, config }),
       });
-      if (!res.ok) throw new Error(`保存跳过片头片尾配置失败: ${res.status}`);
     } catch (err) {
       console.error('保存跳过片头片尾配置失败:', err);
     }
@@ -1513,13 +1518,9 @@ export async function deleteSkipConfig(
 
     // 异步同步到数据库
     try {
-      const res = await fetch(
-        `/api/skipconfigs?key=${encodeURIComponent(key)}`,
-        {
-          method: 'DELETE',
-        }
-      );
-      if (!res.ok) throw new Error(`删除跳过片头片尾配置失败: ${res.status}`);
+      await fetchWithAuth(`/api/skipconfigs?key=${encodeURIComponent(key)}`, {
+        method: 'DELETE',
+      });
     } catch (err) {
       console.error('删除跳过片头片尾配置失败:', err);
     }
