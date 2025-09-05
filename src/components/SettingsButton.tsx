@@ -78,7 +78,20 @@ export const SettingsButton: React.FC = () => {
   const handleImageProxyUrlChange = (value: string) => {
     setImageProxyUrl(value);
     if (typeof window !== 'undefined') {
-      localStorage.setItem('imageProxyUrl', value);
+      // Only accept http(s) URLs; refuse other protocols
+      try {
+        const url = new URL(value);
+        if (url.protocol === 'http:' || url.protocol === 'https:') {
+          localStorage.setItem('imageProxyUrl', value);
+        } else {
+          // Optionally set error state or notify user
+          // For now, just clear the input in localStorage if invalid
+          localStorage.removeItem('imageProxyUrl');
+        }
+      } catch {
+        // Invalid URL (parsing failed), remove stored value
+        localStorage.removeItem('imageProxyUrl');
+      }
     }
   };
 
