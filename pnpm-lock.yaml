@@ -75,8 +75,8 @@ importers:
         specifier: ^4.6.7
         version: 4.7.1
       sweetalert2:
-        specifier: ^11.11.0
-        version: 11.22.2
+        specifier: ^11.22.4
+        version: 11.22.4
       swiper:
         specifier: ^11.2.8
         version: 11.2.8
@@ -5764,8 +5764,8 @@ packages:
     engines: {node: '>=14.0.0'}
     hasBin: true
 
-  sweetalert2@11.22.2:
-    resolution: {integrity: sha512-GFQGzw8ZXF23PO79WMAYXLl4zYmLiaKqYJwcp5eBF07wiI5BYPbZtKi2pcvVmfUQK+FqL1risJAMxugcPbGIyg==}
+  sweetalert2@11.22.4:
+    resolution: {integrity: sha512-JwcRODfozxiKmspFp+xctZ2izAmLAKbRPcoLMEW7LdugN/YmNrX1LT7hdBW87qsgupEO1ukBBuB17KzKFKW0tg==}
 
   swiper@11.2.8:
     resolution: {integrity: sha512-S5FVf6zWynPWooi7pJ7lZhSUe2snTzqLuUzbd5h5PHUOhzgvW0bLKBd2wv0ixn6/5o9vwc/IkQT74CRcLJQzeg==}
@@ -12688,7 +12688,7 @@ snapshots:
       csso: 5.0.5
       picocolors: 1.1.1
 
-  sweetalert2@11.22.2: {}
+  sweetalert2@11.22.4: {}
 
   swiper@11.2.8: {}
 
