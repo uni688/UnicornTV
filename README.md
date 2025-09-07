@@ -136,7 +136,7 @@ docker pull ghcr.io/uni688/unicorntv:latest
 
 # 运行容器
 # -d: 后台运行  -p: 映射端口 3000 -> 3000
-docker run -d --name moontv -p 3000:3000 --env PASSWORD=your_password ghcr.io/uni688/unicorntv:latest
+docker run -d --name unicorntv -p 3000:3000 --env PASSWORD=your_password ghcr.io/uni688/unicorntv:latest
 ```
 
 访问 `http://服务器 IP:3000` 即可。（需自行到服务器控制台放通 `3000` 端口）
@@ -211,7 +211,7 @@ networks:
 | --------------------------------- | -------------------------------------------- | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
 | USERNAME                          | 非 localstorage 部署时的管理员账号           | 任意字符串                       | （空）                                                                                                                     |
 | PASSWORD                          | 非 localstorage 部署时为管理员密码           | 任意字符串                       | （空）                                                                                                                     |
-| SITE_NAME                         | 站点名称                                     | 任意字符串                       | MoonTV                                                                                                                     |
+| SITE_NAME                         | 站点名称                                     | 任意字符串                       | UnicornTV                                                                                                                     |
 | ANNOUNCEMENT                      | 站点公告                                     | 任意字符串                       | 本网站仅提供影视信息搜索服务，所有内容均来自第三方网站。本站不存储任何视频资源，不对任何内容的准确性、合法性、完整性负责。 |
 | NEXT_PUBLIC_STORAGE_TYPE          | 播放记录/收藏的存储方式                      | localstorage、redis、d1、upstash | localstorage                                                                                                               |
 | REDIS_URL                         | redis 连接 url                               | 连接 url                         | 空                                                                                                                         |
