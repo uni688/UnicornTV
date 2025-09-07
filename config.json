@@ -312,6 +312,13 @@
       "api": "https://yingmizy.com/api.php/provide/vod",
       "name": "影迷资源",
       "detail": "https://yingmizy.com"
+    "lzi": {
+      "api": "https://cj.lziapi.com/api.php/provide/vod",
+      "name": "量子资源站"
+    },
+    "xiaomaomi": {
+      "api": "https://zy.xmm.hk/api.php/provide/vod",
+      "name": "小猫咪资源"
     }
   }
 }
