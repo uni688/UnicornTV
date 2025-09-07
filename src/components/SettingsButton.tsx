@@ -78,18 +78,14 @@ export const SettingsButton: React.FC = () => {
   const handleImageProxyUrlChange = (value: string) => {
     setImageProxyUrl(value);
     if (typeof window !== 'undefined') {
-      // Only accept http(s) URLs; refuse other protocols
-      try {
-        const url = new URL(value);
-        if (url.protocol === 'http:' || url.protocol === 'https:') {
-          localStorage.setItem('imageProxyUrl', value);
-        } else {
-          // Optionally set error state or notify user
-          // For now, just clear the input in localStorage if invalid
-          localStorage.removeItem('imageProxyUrl');
-        }
-      } catch {
-        // Invalid URL (parsing failed), remove stored value
+      // Use utility method to sanitize and validate before setting
+      // See: src/lib/utils (import externally)
+      // Note: since the static import is not shown, assuming global function due to restrictions
+      // If not available globally, you would import: import { sanitizeProxyUrl } from '@/lib/utils';
+      const sanitized = window.sanitizeProxyUrl ? window.sanitizeProxyUrl(value) : value;
+      if (sanitized) {
+        localStorage.setItem('imageProxyUrl', sanitized);
+      } else {
         localStorage.removeItem('imageProxyUrl');
       }
     }

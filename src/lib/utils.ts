@@ -5,6 +5,27 @@ import Hls from 'hls.js';
 /**
  * 获取图片代理 URL 设置
  */
+/**
+ * Sanitizes and validates an image proxy URL, only allowing http/https and disallowing dangerous input.
+ */
+export function sanitizeProxyUrl(url: string | null): string | null {
+  if (!url) return null;
+  let safeUrl = '';
+  try {
+    const parsed = new URL(url);
+    // Only allow http(s), and disallow any search/hash/newline/control chars etc.
+    if ((parsed.protocol === 'http:' || parsed.protocol === 'https:') &&
+      !/[\r\n]/.test(url) &&
+      /^[\w\-.:/?&=%+~#]*$/.test(url)
+    ) {
+      safeUrl = parsed.toString();
+    }
+  } catch(e) {
+    return null;
+  }
+  return safeUrl || null;
+}
+
 export function getImageProxyUrl(): string | null {
   if (typeof window === 'undefined') return null;
 
@@ -17,30 +38,39 @@ export function getImageProxyUrl(): string | null {
   }
 
   const localImageProxy = localStorage.getItem('imageProxyUrl');
-  if (localImageProxy != null) {
-    return localImageProxy.trim() ? localImageProxy.trim() : null;
+  const sanitizedLocal = sanitizeProxyUrl(localImageProxy);
+  if (sanitizedLocal != null) {
+    return sanitizedLocal;
   }
 
   // 如果未设置，则使用全局对象
   const serverImageProxy = (window as any).RUNTIME_CONFIG?.IMAGE_PROXY;
-  return serverImageProxy && serverImageProxy.trim()
-    ? serverImageProxy.trim()
-    : null;
+  const sanitizedServer = sanitizeProxyUrl(serverImageProxy);
+  return sanitizedServer || null;
 }
 
 /**
  * 处理图片 URL，如果设置了图片代理则使用代理
  */
+  // proxyUrl is guaranteed to be sanitized
 export function processImageUrl(originalUrl: string): string {
   if (!originalUrl) return originalUrl;
 
   const proxyUrl = getImageProxyUrl();
   if (
-    !proxyUrl ||
-    !/^https?:\/\//i.test(proxyUrl)
+    !proxyUrl
   ) return originalUrl;
 
-  return `${proxyUrl}${encodeURIComponent(originalUrl)}`;
+  // Compose with URL() to ensure safe concatenation
+  try {
+    const proxy = new URL(proxyUrl);
+    // Assuming proxy expects ?url= param, enforce template
+    proxy.searchParams.set('url', originalUrl);
+    return proxy.toString();
+  } catch {
+    // fallback if anything goes wrong
+    return originalUrl;
+  }
 }
 
 export function cleanHtmlTags(text: string): string {
