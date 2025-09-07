@@ -14,13 +14,14 @@ export function sanitizeProxyUrl(url: string | null): string | null {
   try {
     const parsed = new URL(url);
     // Only allow http(s), and disallow any search/hash/newline/control chars etc.
-    if ((parsed.protocol === 'http:' || parsed.protocol === 'https:') &&
+    if (
+      (parsed.protocol === 'http:' || parsed.protocol === 'https:') &&
       !/[\r\n]/.test(url) &&
       /^[\w\-.:/?&=%+~#]*$/.test(url)
     ) {
       safeUrl = parsed.toString();
     }
-  } catch(e) {
+  } catch (e) {
     return null;
   }
   return safeUrl || null;
@@ -52,14 +53,12 @@ export function getImageProxyUrl(): string | null {
 /**
  * 处理图片 URL，如果设置了图片代理则使用代理
  */
-  // proxyUrl is guaranteed to be sanitized
+// proxyUrl is guaranteed to be sanitized
 export function processImageUrl(originalUrl: string): string {
   if (!originalUrl) return originalUrl;
 
   const proxyUrl = getImageProxyUrl();
-  if (
-    !proxyUrl
-  ) return originalUrl;
+  if (!proxyUrl) return originalUrl;
 
   // Compose with URL() to ensure safe concatenation
   try {
@@ -71,44 +70,6 @@ export function processImageUrl(originalUrl: string): string {
     // fallback if anything goes wrong
     return originalUrl;
   }
-}
-
-/**
- * 获取豆瓣代理 URL 设置
- */
-export function getDoubanProxyUrl(): string | null {
-  if (typeof window === 'undefined') return null;
-
-  // 本地未开启豆瓣代理，则不使用代理
-  const enableDoubanProxy = localStorage.getItem('enableDoubanProxy');
-  if (enableDoubanProxy !== null) {
-    if (!JSON.parse(enableDoubanProxy) as boolean) {
-      return null;
-    }
-  }
-
-  const localDoubanProxy = localStorage.getItem('doubanProxyUrl');
-  if (localDoubanProxy != null) {
-    return localDoubanProxy.trim() ? localDoubanProxy.trim() : null;
-  }
-
-  // 如果未设置，则使用全局对象
-  const serverDoubanProxy = (window as any).RUNTIME_CONFIG?.DOUBAN_PROXY;
-  return serverDoubanProxy && serverDoubanProxy.trim()
-    ? serverDoubanProxy.trim()
-    : null;
-}
-
-/**
- * 处理豆瓣 URL，如果设置了豆瓣代理则使用代理
- */
-export function processDoubanUrl(originalUrl: string): string {
-  if (!originalUrl) return originalUrl;
-
-  const proxyUrl = getDoubanProxyUrl();
-  if (!proxyUrl) return originalUrl;
-
-  return `${proxyUrl}${encodeURIComponent(originalUrl)}`;
 }
 
 /**

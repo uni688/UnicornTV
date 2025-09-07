@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 import { getAuthInfoFromBrowserCookie } from '@/lib/auth';
+import { sanitizeProxyUrl } from '@/lib/utils';
 import { checkForUpdates, CURRENT_VERSION, UpdateStatus } from '@/lib/version';
 
 interface AuthInfo {
@@ -236,10 +237,7 @@ export const UserMenu: React.FC = () => {
     setImageProxyUrl(value);
     if (typeof window !== 'undefined') {
       // Use utility method to sanitize and validate before setting
-      // See: src/lib/utils (import externally)
-      // Note: since the static import is not shown, assuming global function due to restrictions
-      // If not available globally, you would import: import { sanitizeProxyUrl } from '@/lib/utils';
-      const sanitized = window.sanitizeProxyUrl ? window.sanitizeProxyUrl(value) : value;
+      const sanitized = sanitizeProxyUrl(value);
       if (sanitized) {
         localStorage.setItem('imageProxyUrl', sanitized);
       } else {
