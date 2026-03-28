@@ -42,6 +42,32 @@ function isPrivateOrLocalAddress(url: URL): boolean {
   return false;
 }
 
+// Allow-list check for external image hosts to reduce SSRF risk.
+function isAllowedHostname(hostname: string): boolean {
+  const lowerHost = hostname.toLowerCase();
+
+  // Example allow-list: only allow Douban image-related domains.
+  // Adjust this list as needed for your use case.
+  const allowedHosts = [
+    'img1.doubanio.com',
+    'img2.doubanio.com',
+    'img3.doubanio.com',
+    'img4.doubanio.com',
+    'img9.doubanio.com',
+  ];
+
+  if (allowedHosts.includes(lowerHost)) {
+    return true;
+  }
+
+  // Optionally allow any subdomain under a specific parent domain.
+  if (lowerHost.endsWith('.doubanio.com')) {
+    return true;
+  }
+
+  return false;
+}
+
 // OrionTV 兼容接口
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -70,6 +96,13 @@ export async function GET(request: Request) {
   }
 
   if (isPrivateOrLocalAddress(parsedUrl)) {
+    return NextResponse.json(
+      { error: 'Invalid or unsafe image URL' },
+      { status: 400 }
+    );
+  }
+
+  if (!isAllowedHostname(parsedUrl.hostname)) {
     return NextResponse.json(
       { error: 'Invalid or unsafe image URL' },
       { status: 400 }
