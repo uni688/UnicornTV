@@ -570,6 +570,108 @@
     "qiqidys": {
       "api": "https://www.qiqidys.com/api.php/provide/vod/",
       "name": "七七影视"
+    },
+
+    // ==================== 新增的20个接口（优先高速+4K支持） ====================
+    "lzzy_new": {
+      "api": "https://cj.lzizy.net/api.php/provide/vod",
+      "name": "量子资源(新)",
+      "detail": "https://lzizy.net"
+    },
+    "jszy_new": {
+      "api": "https://jszyapi.net/api.php/provide/vod",
+      "name": "极速资源(新)",
+      "detail": "https://jszyapi.com"
+    },
+    "jinying_new": {
+      "api": "https://jyzyapi.com/api.php/provide/vod/from/jsm3u8",
+      "name": "金鹰资源(高速)",
+      "detail": "https://jyzyapi.com"
+    },
+    "hongniu_new": {
+      "api": "https://www.hongniuzy.com/api.php/provide/vod",
+      "name": "红牛资源(高速)",
+      "detail": "https://hongniuzy.com"
+    },
+    "bajiezy": {
+      "api": "http://cj.bajiecaiji.com/inc/bjm3u8.php",
+      "name": "八戒资源",
+      "detail": "http://bajiezy.cc"
+    },
+    "mahuazy": {
+      "api": "http://www.mahuazy.net/api.php/provide/vod",
+      "name": "麻花资源",
+      "detail": "http://www.mahuazy.net"
+    },
+    "tkzy_new": {
+      "api": "https://api.tiankongapi.com/api.php/provide/vod",
+      "name": "天空资源",
+      "detail": "https://api.tiankongapi.com"
+    },
+    "okzy_new": {
+      "api": "http://okzyapi.com/api.php/provide/vod",
+      "name": "OK资源",
+      "detail": "http://okzyapi.com"
+    },
+    "maxzy_new": {
+      "api": "http://www.maxzy.cc/api.php/provide/vod",
+      "name": "最大资源(新)",
+      "detail": "http://www.maxzy.cc"
+    },
+    "lebozy": {
+      "api": "https://lebozy.com/api.php/provide/vod",
+      "name": "乐播资源",
+      "detail": "https://lebozy.com"
+    },
+    "8kzy_new": {
+      "api": "https://www.8k.cm/api.php/provide/vod",
+      "name": "8K资源网(高清优先)",
+      "detail": "https://www.8k.cm"
+    },
+    "wolong_new": {
+      "api": "http://wolongzy.net/api.php/provide/vod",
+      "name": "卧龙资源(备用)",
+      "detail": "http://wolongzy.net"
+    },
+    "209zy_new": {
+      "api": "http://www.209zy.net/api.php/provide/vod",
+      "name": "209资源",
+      "detail": "http://www.209zy.net"
+    },
+    "kuyunzy": {
+      "api": "http://kuyunzy.cc/api.php/provide/vod",
+      "name": "酷云资源",
+      "detail": "http://kuyunzy.cc"
+    },
+    "yongjiuzy": {
+      "api": "http://yongjiuzy.cc/api.php/provide/vod",
+      "name": "永久资源",
+      "detail": "http://yongjiuzy.cc"
+    },
+    "88zy_new": {
+      "api": "http://88zy.cc/api.php/provide/vod",
+      "name": "88资源",
+      "detail": "http://88zy.cc"
+    },
+    "156zy_new": {
+      "api": "http://www.156zy.cc/api.php/provide/vod",
+      "name": "156资源",
+      "detail": "http://www.156zy.cc"
+    },
+    "xunlei": {
+      "api": "https://xunleizyapi.com/api.php/provide/vod",
+      "name": "迅雷资源",
+      "detail": "https://xunleizyapi.com"
+    },
+    "feifei": {
+      "api": "https://ffzyapi.net/api.php/provide/vod",
+      "name": "飞飞资源(高速)",
+      "detail": "https://ffzyapi.net"
+    },
+    "gaosu_new": {
+      "api": "https://gaosuzy.com/api.php/provide/vod",
+      "name": "高速资源",
+      "detail": "https://gaosuzy.com"
     }
   }
 }
