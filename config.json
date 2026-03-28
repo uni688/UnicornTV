@@ -571,8 +571,6 @@
       "api": "https://www.qiqidys.com/api.php/provide/vod/",
       "name": "七七影视"
     },
-
-    // ==================== 新增的20个接口（优先高速+4K支持） ====================
     "lzzy_new": {
       "api": "https://cj.lzizy.net/api.php/provide/vod",
       "name": "量子资源(新)",
