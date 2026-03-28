@@ -671,5 +671,12 @@
       "name": "高速资源",
       "detail": "https://gaosuzy.com"
     }
-  }
+  },
+    "custom_category": [
+    {
+      "name": "动漫",
+      "type": "动漫",
+      "query": "动漫"
+    }
+  ]
 }
