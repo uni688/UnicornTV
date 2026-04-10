@@ -211,7 +211,7 @@ networks:
 | --------------------------------- | -------------------------------------------- | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
 | USERNAME                          | 非 localstorage 部署时的管理员账号           | 任意字符串                       | （空）                                                                                                                     |
 | PASSWORD                          | 非 localstorage 部署时为管理员密码           | 任意字符串                       | （空）                                                                                                                     |
-| SITE_NAME                         | 站点名称                                     | 任意字符串                       | UnicornTV                                                                                                                     |
+| SITE_NAME                         | 站点名称                                     | 任意字符串                       | UnicornTV                                                                                                                  |
 | ANNOUNCEMENT                      | 站点公告                                     | 任意字符串                       | 本网站仅提供影视信息搜索服务，所有内容均来自第三方网站。本站不存储任何视频资源，不对任何内容的准确性、合法性、完整性负责。 |
 | NEXT_PUBLIC_STORAGE_TYPE          | 播放记录/收藏的存储方式                      | localstorage、redis、d1、upstash | localstorage                                                                                                               |
 | REDIS_URL                         | redis 连接 url                               | 连接 url                         | 空                                                                                                                         |
@@ -240,9 +240,16 @@ networks:
   },
   "custom_category": [
     {
-      "name": "华语",
-      "type": "movie",
-      "query": "华语"
+      "name": "动漫",
+      "type": "动漫",
+      "query": "动漫",
+      "doubanType": "tv"
+    },
+    {
+      "name": "AI短剧",
+      "type": "AI短剧",
+      "query": "短剧",
+      "doubanType": "tv"
     }
   ]
 }
@@ -256,20 +263,25 @@ networks:
   - `detail`：（可选）部分无法通过 API 获取剧集详情的站点，需要提供网页详情根 URL，用于爬取。
 - `custom_category`：自定义分类配置，用于在导航中添加个性化的影视分类。以 type + query 作为唯一标识。支持以下字段：
   - `name`：分类显示名称（可选，如不提供则使用 query 作为显示名）
-  - `type`：分类类型，支持 `movie`（电影）或 `tv`（电视剧）
+  - `type`：分类分组名称，支持任意字符串（如 `动漫`、`AI短剧`、`纪录片`）
   - `query`：搜索关键词，用于在豆瓣 API 中搜索相关内容
+  - `doubanType`：（可选）豆瓣检索类型，仅支持 `movie` 或 `tv`。不填时会自动推断（`movie` 保持电影，其余默认按 `tv`）
 
-custom_category 支持的自定义分类已知如下：
+custom_category 常见组合示例：
 
-- movie：热门、最新、经典、豆瓣高分、冷门佳片、华语、欧美、韩国、日本、动作、喜剧、爱情、科幻、悬疑、恐怖、治愈
-- tv：热门、美剧、英剧、韩剧、日剧、国产剧、港剧、日本动画、综艺、纪录片
+- `type: movie`，`query: 华语/欧美/豆瓣高分/动作`
+- `type: tv`，`query: 美剧/韩剧/纪录片/综艺`
+- `type: 动漫`，`query: 动漫`，`doubanType: tv`
+- `type: AI短剧`，`query: 短剧`，`doubanType: tv`
 
 也可输入如 "哈利波特" 效果等同于豆瓣搜索
 
-custom_category 支持的自定义分类已知如下：
+custom_category 常见组合示例：
 
-- movie：热门、最新、经典、豆瓣高分、冷门佳片、华语、欧美、韩国、日本、动作、喜剧、爱情、科幻、悬疑、恐怖、治愈
-- tv：热门、美剧、英剧、韩剧、日剧、国产剧、港剧、日本动画、综艺、纪录片
+- `type: movie`，`query: 华语/欧美/豆瓣高分/动作`
+- `type: tv`，`query: 美剧/韩剧/纪录片/综艺`
+- `type: 动漫`，`query: 动漫`，`doubanType: tv`
+- `type: AI短剧`，`query: 短剧`，`doubanType: tv`
 
 也可输入如 "哈利波特" 效果等同于豆瓣搜索
 

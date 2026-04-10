@@ -16,6 +16,18 @@ interface BaseBody {
   action?: Action;
 }
 
+function normalizeDoubanType(value?: string): 'movie' | 'tv' {
+  return value === 'movie' ? 'movie' : 'tv';
+}
+
+function normalizeCategoryType(value?: string): string {
+  return (value || '').trim();
+}
+
+function normalizeQuery(value?: string): string {
+  return (value || '').trim();
+}
+
 export async function POST(request: NextRequest) {
   const storageType = process.env.NEXT_PUBLIC_STORAGE_TYPE || 'localstorage';
   if (storageType === 'localstorage') {
@@ -23,7 +35,7 @@ export async function POST(request: NextRequest) {
       {
         error: '不支持本地存储进行管理员配置',
       },
-      { status: 400 }
+      { status: 400 },
     );
   }
   if (storageType === 'd1' || storageType === 'upstash') {
@@ -31,7 +43,7 @@ export async function POST(request: NextRequest) {
       {
         error: 'D1 和 Upstash 实例请通过配置文件调整',
       },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -58,7 +70,7 @@ export async function POST(request: NextRequest) {
     // 权限与身份校验
     if (username !== process.env.USERNAME) {
       const userEntry = adminConfig.UserConfig.Users.find(
-        (u) => u.username === username
+        (u) => u.username === username,
       );
       if (!userEntry || userEntry.role !== 'admin') {
         return NextResponse.json({ error: '权限不足' }, { status: 401 });
@@ -67,26 +79,32 @@ export async function POST(request: NextRequest) {
 
     switch (action) {
       case 'add': {
-        const { name, type, query } = body as {
+        const { name, type, query, doubanType } = body as {
           name?: string;
-          type?: 'movie' | 'tv';
+          type?: string;
           query?: string;
+          doubanType?: string;
         };
-        if (!name || !type || !query) {
+        const normalizedName = (name || '').trim();
+        const normalizedType = normalizeCategoryType(type);
+        const normalizedQuery = normalizeQuery(query);
+
+        if (!normalizedName || !normalizedType || !normalizedQuery) {
           return NextResponse.json({ error: '缺少必要参数' }, { status: 400 });
         }
         // 检查是否已存在相同的查询和类型组合
         if (
           adminConfig.CustomCategories.some(
-            (c) => c.query === query && c.type === type
+            (c) => c.query === normalizedQuery && c.type === normalizedType,
           )
         ) {
           return NextResponse.json({ error: '该分类已存在' }, { status: 400 });
         }
         adminConfig.CustomCategories.push({
-          name,
-          type,
-          query,
+          name: normalizedName,
+          type: normalizedType,
+          query: normalizedQuery,
+          doubanType: normalizeDoubanType(doubanType || normalizedType),
           from: 'custom',
           disabled: false,
         });
@@ -95,15 +113,18 @@ export async function POST(request: NextRequest) {
       case 'disable': {
         const { query, type } = body as {
           query?: string;
-          type?: 'movie' | 'tv';
+          type?: string;
         };
-        if (!query || !type)
+        const normalizedQuery = normalizeQuery(query);
+        const normalizedType = normalizeCategoryType(type);
+
+        if (!normalizedQuery || !normalizedType)
           return NextResponse.json(
             { error: '缺少 query 或 type 参数' },
-            { status: 400 }
+            { status: 400 },
           );
         const entry = adminConfig.CustomCategories.find(
-          (c) => c.query === query && c.type === type
+          (c) => c.query === normalizedQuery && c.type === normalizedType,
         );
         if (!entry)
           return NextResponse.json({ error: '分类不存在' }, { status: 404 });
@@ -113,15 +134,18 @@ export async function POST(request: NextRequest) {
       case 'enable': {
         const { query, type } = body as {
           query?: string;
-          type?: 'movie' | 'tv';
+          type?: string;
         };
-        if (!query || !type)
+        const normalizedQuery = normalizeQuery(query);
+        const normalizedType = normalizeCategoryType(type);
+
+        if (!normalizedQuery || !normalizedType)
           return NextResponse.json(
             { error: '缺少 query 或 type 参数' },
-            { status: 400 }
+            { status: 400 },
           );
         const entry = adminConfig.CustomCategories.find(
-          (c) => c.query === query && c.type === type
+          (c) => c.query === normalizedQuery && c.type === normalizedType,
         );
         if (!entry)
           return NextResponse.json({ error: '分类不存在' }, { status: 404 });
@@ -131,15 +155,18 @@ export async function POST(request: NextRequest) {
       case 'delete': {
         const { query, type } = body as {
           query?: string;
-          type?: 'movie' | 'tv';
+          type?: string;
         };
-        if (!query || !type)
+        const normalizedQuery = normalizeQuery(query);
+        const normalizedType = normalizeCategoryType(type);
+
+        if (!normalizedQuery || !normalizedType)
           return NextResponse.json(
             { error: '缺少 query 或 type 参数' },
-            { status: 400 }
+            { status: 400 },
           );
         const idx = adminConfig.CustomCategories.findIndex(
-          (c) => c.query === query && c.type === type
+          (c) => c.query === normalizedQuery && c.type === normalizedType,
         );
         if (idx === -1)
           return NextResponse.json({ error: '分类不存在' }, { status: 404 });
@@ -147,7 +174,7 @@ export async function POST(request: NextRequest) {
         if (entry.from === 'config') {
           return NextResponse.json(
             { error: '该分类不可删除' },
-            { status: 400 }
+            { status: 400 },
           );
         }
         adminConfig.CustomCategories.splice(idx, 1);
@@ -158,11 +185,11 @@ export async function POST(request: NextRequest) {
         if (!Array.isArray(order)) {
           return NextResponse.json(
             { error: '排序列表格式错误' },
-            { status: 400 }
+            { status: 400 },
           );
         }
         const map = new Map(
-          adminConfig.CustomCategories.map((c) => [`${c.query}:${c.type}`, c])
+          adminConfig.CustomCategories.map((c) => [`${c.query}:${c.type}`, c]),
         );
         const newList: typeof adminConfig.CustomCategories = [];
         order.forEach((key) => {
@@ -194,7 +221,7 @@ export async function POST(request: NextRequest) {
         headers: {
           'Cache-Control': 'no-store',
         },
-      }
+      },
     );
   } catch (error) {
     console.error('分类管理操作失败:', error);
@@ -203,7 +230,7 @@ export async function POST(request: NextRequest) {
         error: '分类管理操作失败',
         details: (error as Error).message,
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

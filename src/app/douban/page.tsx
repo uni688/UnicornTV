@@ -15,6 +15,21 @@ import DoubanSelector from '@/components/DoubanSelector';
 import PageLayout from '@/components/PageLayout';
 import VideoCard from '@/components/VideoCard';
 
+type CustomCategory = {
+  name: string;
+  type: string;
+  query: string;
+  doubanType?: 'movie' | 'tv';
+};
+
+function normalizeDoubanType(value?: string): 'movie' | 'tv' {
+  return value === 'movie' ? 'movie' : 'tv';
+}
+
+function resolveDoubanType(category: CustomCategory): 'movie' | 'tv' {
+  return normalizeDoubanType(category.doubanType || category.type);
+}
+
 function DoubanPageClient() {
   const searchParams = useSearchParams();
   const [doubanData, setDoubanData] = useState<DoubanItem[]>([]);
@@ -30,9 +45,9 @@ function DoubanPageClient() {
   const type = searchParams.get('type') || 'movie';
 
   // 获取 runtimeConfig 中的自定义分类数据
-  const [customCategories, setCustomCategories] = useState<
-    Array<{ name: string; type: 'movie' | 'tv'; query: string }>
-  >([]);
+  const [customCategories, setCustomCategories] = useState<CustomCategory[]>(
+    [],
+  );
 
   // 选择器状态 - 完全独立，不依赖URL参数
   const [primarySelection, setPrimarySelection] = useState<string>(() => {
@@ -74,21 +89,21 @@ function DoubanPageClient() {
     if (type === 'custom' && customCategories.length > 0) {
       // 自定义分类模式：优先选择 movie，如果没有 movie 则选择 tv
       const types = Array.from(
-        new Set(customCategories.map((cat) => cat.type))
+        new Set(customCategories.map((cat) => cat.type)),
       );
       if (types.length > 0) {
-        // 优先选择 movie，如果没有 movie 则选择 tv
+        // 优先选择 movie，其次 tv，否则选择首个自定义分组
         let selectedType = types[0]; // 默认选择第一个
         if (types.includes('movie')) {
           selectedType = 'movie';
-        } else {
+        } else if (types.includes('tv')) {
           selectedType = 'tv';
         }
         setPrimarySelection(selectedType);
 
         // 设置选中类型的第一个分类的 query 作为二级选择
         const firstCategory = customCategories.find(
-          (cat) => cat.type === selectedType
+          (cat) => cat.type === selectedType,
         );
         if (firstCategory) {
           setSecondarySelection(firstCategory.query);
@@ -145,7 +160,7 @@ function DoubanPageClient() {
         pageStart,
       };
     },
-    [type, primarySelection, secondarySelection]
+    [type, primarySelection, secondarySelection],
   );
 
   // 防抖的数据加载函数
@@ -158,13 +173,13 @@ function DoubanPageClient() {
         // 自定义分类模式：根据选中的一级和二级选项获取对应的分类
         const selectedCategory = customCategories.find(
           (cat) =>
-            cat.type === primarySelection && cat.query === secondarySelection
+            cat.type === primarySelection && cat.query === secondarySelection,
         );
 
         if (selectedCategory) {
           data = await getDoubanList({
             tag: selectedCategory.query,
-            type: selectedCategory.type,
+            type: resolveDoubanType(selectedCategory),
             pageLimit: 25,
             pageStart: 0,
           });
@@ -243,13 +258,13 @@ function DoubanPageClient() {
             const selectedCategory = customCategories.find(
               (cat) =>
                 cat.type === primarySelection &&
-                cat.query === secondarySelection
+                cat.query === secondarySelection,
             );
 
             if (selectedCategory) {
               data = await getDoubanList({
                 tag: selectedCategory.query,
-                type: selectedCategory.type,
+                type: resolveDoubanType(selectedCategory),
                 pageLimit: 25,
                 pageStart: currentPage * 25,
               });
@@ -258,7 +273,7 @@ function DoubanPageClient() {
             }
           } else {
             data = await getDoubanCategories(
-              getRequestParams(currentPage * 25)
+              getRequestParams(currentPage * 25),
             );
           }
 
@@ -303,7 +318,7 @@ function DoubanPageClient() {
           setCurrentPage((prev) => prev + 1);
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     );
 
     observer.observe(loadingRef.current);
@@ -326,7 +341,7 @@ function DoubanPageClient() {
         // 如果是自定义分类模式，同时更新一级和二级选择器
         if (type === 'custom' && customCategories.length > 0) {
           const firstCategory = customCategories.find(
-            (cat) => cat.type === value
+            (cat) => cat.type === value,
           );
           if (firstCategory) {
             // 批量更新状态，避免多次触发数据加载
@@ -340,7 +355,7 @@ function DoubanPageClient() {
         }
       }
     },
-    [primarySelection, type, customCategories]
+    [primarySelection, type, customCategories],
   );
 
   const handleSecondaryChange = useCallback(
@@ -351,7 +366,7 @@ function DoubanPageClient() {
         setSecondarySelection(value);
       }
     },
-    [secondarySelection]
+    [secondarySelection],
   );
 
   const getPageTitle = () => {
@@ -359,10 +374,10 @@ function DoubanPageClient() {
     return type === 'movie'
       ? '电影'
       : type === 'tv'
-      ? '电视剧'
-      : type === 'show'
-      ? '综艺'
-      : '自定义';
+        ? '电视剧'
+        : type === 'show'
+          ? '综艺'
+          : '自定义';
   };
 
   const getActivePath = () => {
