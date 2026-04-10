@@ -15,6 +15,9 @@ import { ThemeProvider } from '../components/ThemeProvider';
 
 const inter = Inter({ subsets: ['latin'] });
 
+const normalizeDoubanType = (value?: string): 'movie' | 'tv' =>
+  value === 'movie' ? 'movie' : 'tv';
+
 // 动态生成 metadata，支持配置更新后的标题变化
 export async function generateMetadata(): Promise<Metadata> {
   let siteName = process.env.SITE_NAME || 'UnicornTV';
@@ -57,7 +60,16 @@ export default async function RootLayout({
       name: 'name' in category ? category.name : '',
       type: category.type,
       query: category.query,
-    })) || ([] as Array<{ name: string; type: 'movie' | 'tv'; query: string }>);
+      doubanType: normalizeDoubanType(
+        category.doubanType || category.douban_type || category.type,
+      ),
+    })) ||
+    ([] as Array<{
+      name: string;
+      type: string;
+      query: string;
+      doubanType?: string;
+    }>);
   if (
     process.env.NEXT_PUBLIC_STORAGE_TYPE !== 'd1' &&
     process.env.NEXT_PUBLIC_STORAGE_TYPE !== 'upstash'
@@ -70,11 +82,12 @@ export default async function RootLayout({
     doubanProxy = config.SiteConfig.DoubanProxy;
     disableYellowFilter = config.SiteConfig.DisableYellowFilter;
     customCategories = config.CustomCategories.filter(
-      (category) => !category.disabled
+      (category) => !category.disabled,
     ).map((category) => ({
       name: category.name || '',
       type: category.type,
       query: category.query,
+      doubanType: normalizeDoubanType(category.doubanType || category.type),
     }));
   }
 

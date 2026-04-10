@@ -2,7 +2,7 @@
 
 import { getStorage } from '@/lib/db';
 
-import { AdminConfig } from './admin.types';
+import { AdminConfig, DoubanMediaType } from './admin.types';
 import runtimeConfig from './runtime';
 
 export interface ApiSite {
@@ -19,9 +19,24 @@ interface ConfigFileStruct {
   };
   custom_category?: {
     name?: string;
-    type: 'movie' | 'tv';
+    type: string;
     query: string;
+    doubanType?: DoubanMediaType;
+    douban_type?: DoubanMediaType;
   }[];
+}
+
+function normalizeDoubanType(value?: string): DoubanMediaType {
+  return value === 'movie' ? 'movie' : 'tv';
+}
+
+function normalizeCategoryType(value?: string): string {
+  const normalized = (value || '').trim();
+  return normalized || '未分类';
+}
+
+function categoryKey(query: string, type: string): string {
+  return `${query}:${type}`;
 }
 
 export const API_CONFIG = {
@@ -96,7 +111,7 @@ async function initConfig() {
       if (adminConfig) {
         // 补全 SourceConfig
         const sourceConfigMap = new Map(
-          (adminConfig.SourceConfig || []).map((s) => [s.key, s])
+          (adminConfig.SourceConfig || []).map((s) => [s.key, s]),
         );
 
         apiSiteEntries.forEach(([key, site]) => {
@@ -126,16 +141,33 @@ async function initConfig() {
           adminConfig.CustomCategories = [];
         }
 
+        adminConfig.CustomCategories = adminConfig.CustomCategories.map(
+          (category) => ({
+            ...category,
+            type: normalizeCategoryType(category.type),
+            doubanType: normalizeDoubanType(
+              category.doubanType || category.type,
+            ),
+          }),
+        );
+
         // 补全 CustomCategories
         const customCategoriesMap = new Map(
-          adminConfig.CustomCategories.map((c) => [c.query + c.type, c])
+          adminConfig.CustomCategories.map((c) => [
+            categoryKey(c.query, c.type),
+            c,
+          ]),
         );
 
         customCategories.forEach((category) => {
-          customCategoriesMap.set(category.query + category.type, {
+          const normalizedType = normalizeCategoryType(category.type);
+          customCategoriesMap.set(categoryKey(category.query, normalizedType), {
             name: category.name,
-            type: category.type,
+            type: normalizedType,
             query: category.query,
+            doubanType: normalizeDoubanType(
+              category.doubanType || category.douban_type || category.type,
+            ),
             from: 'config',
             disabled: false,
           });
@@ -143,10 +175,16 @@ async function initConfig() {
 
         // 检查现有 CustomCategories 是否在 fileConfig.custom_category 中，如果不在则标记为 custom
         const customCategoriesKeys = new Set(
-          customCategories.map((c) => c.query + c.type)
+          customCategories.map((c) =>
+            categoryKey(c.query, normalizeCategoryType(c.type)),
+          ),
         );
         customCategoriesMap.forEach((category) => {
-          if (!customCategoriesKeys.has(category.query + category.type)) {
+          if (
+            !customCategoriesKeys.has(
+              categoryKey(category.query, category.type),
+            )
+          ) {
             category.from = 'custom';
           }
         });
@@ -155,7 +193,7 @@ async function initConfig() {
         adminConfig.CustomCategories = Array.from(customCategoriesMap.values());
 
         const existedUsers = new Set(
-          (adminConfig.UserConfig.Users || []).map((u) => u.username)
+          (adminConfig.UserConfig.Users || []).map((u) => u.username),
         );
         userNames.forEach((uname) => {
           if (!existedUsers.has(uname)) {
@@ -169,7 +207,7 @@ async function initConfig() {
         const ownerUser = process.env.USERNAME;
         if (ownerUser) {
           adminConfig!.UserConfig.Users = adminConfig!.UserConfig.Users.filter(
-            (u) => u.username !== ownerUser
+            (u) => u.username !== ownerUser,
           );
           adminConfig!.UserConfig.Users.unshift({
             username: ownerUser,
@@ -218,8 +256,11 @@ async function initConfig() {
           })),
           CustomCategories: customCategories.map((category) => ({
             name: category.name,
-            type: category.type,
+            type: normalizeCategoryType(category.type),
             query: category.query,
+            doubanType: normalizeDoubanType(
+              category.doubanType || category.douban_type || category.type,
+            ),
             from: 'config',
             disabled: false,
           })),
@@ -267,8 +308,11 @@ async function initConfig() {
       CustomCategories:
         fileConfig.custom_category?.map((category) => ({
           name: category.name,
-          type: category.type,
+          type: normalizeCategoryType(category.type),
           query: category.query,
+          doubanType: normalizeDoubanType(
+            category.doubanType || category.douban_type || category.type,
+          ),
           from: 'config',
           disabled: false,
         })) || [],
@@ -312,7 +356,7 @@ export async function getConfig(): Promise<AdminConfig> {
     fileConfig = runtimeConfig as unknown as ConfigFileStruct;
     const apiSiteEntries = Object.entries(fileConfig.api_site);
     const sourceConfigMap = new Map(
-      (adminConfig.SourceConfig || []).map((s) => [s.key, s])
+      (adminConfig.SourceConfig || []).map((s) => [s.key, s]),
     );
 
     apiSiteEntries.forEach(([key, site]) => {
@@ -351,8 +395,11 @@ export async function getConfig(): Promise<AdminConfig> {
     const customCategories = fileConfig.custom_category || [];
     adminConfig.CustomCategories = customCategories.map((category) => ({
       name: category.name,
-      type: category.type,
+      type: normalizeCategoryType(category.type),
       query: category.query,
+      doubanType: normalizeDoubanType(
+        category.doubanType || category.douban_type || category.type,
+      ),
       from: 'config',
       disabled: false,
     }));
@@ -457,8 +504,11 @@ export async function resetConfig() {
       storageType === 'redis'
         ? customCategories?.map((category) => ({
             name: category.name,
-            type: category.type,
+            type: normalizeCategoryType(category.type),
             query: category.query,
+            doubanType: normalizeDoubanType(
+              category.doubanType || category.douban_type || category.type,
+            ),
             from: 'config',
             disabled: false,
           })) || []

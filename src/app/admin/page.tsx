@@ -75,11 +75,22 @@ interface DataSource {
 // 自定义分类数据类型
 interface CustomCategory {
   name?: string;
-  type: 'movie' | 'tv';
+  type: string;
   query: string;
+  doubanType?: 'movie' | 'tv';
   disabled?: boolean;
   from: 'config' | 'custom';
 }
+
+const getCategoryTypeLabel = (type: string) => {
+  if (type === 'movie') return '电影';
+  if (type === 'tv') return '电视剧';
+  if (type === 'show') return '综艺';
+  return type;
+};
+
+const normalizeDoubanType = (type?: string): 'movie' | 'tv' =>
+  type === 'movie' ? 'movie' : 'tv';
 
 // 可折叠标签组件
 interface CollapsibleTabProps {
@@ -216,7 +227,7 @@ const UserConfig = ({ config, role, refreshConfig }: UserConfigProps) => {
     await handleUserAction(
       'changePassword',
       changePasswordUser.username,
-      changePasswordUser.password
+      changePasswordUser.password,
     );
     setChangePasswordUser({ username: '', password: '' });
     setShowChangePasswordForm(false);
@@ -255,7 +266,7 @@ const UserConfig = ({ config, role, refreshConfig }: UserConfigProps) => {
       | 'changePassword'
       | 'deleteUser',
     targetUsername: string,
-    targetPassword?: string
+    targetPassword?: string,
   ) => {
     try {
       const res = await fetch('/api/admin/user', {
@@ -534,15 +545,15 @@ const UserConfig = ({ config, role, refreshConfig }: UserConfigProps) => {
                               user.role === 'owner'
                                 ? 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-300'
                                 : user.role === 'admin'
-                                ? 'bg-purple-100 dark:bg-purple-900/20 text-purple-800 dark:text-purple-300'
-                                : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
+                                  ? 'bg-purple-100 dark:bg-purple-900/20 text-purple-800 dark:text-purple-300'
+                                  : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
                             }`}
                           >
                             {user.role === 'owner'
                               ? '站长'
                               : user.role === 'admin'
-                              ? '管理员'
-                              : '普通用户'}
+                                ? '管理员'
+                                : '普通用户'}
                           </span>
                         </td>
                         <td className='px-6 py-4 whitespace-nowrap'>
@@ -664,7 +675,7 @@ const VideoSourceConfig = ({
         delay: 150, // 长按 150ms 后触发，避免与滚动冲突
         tolerance: 5,
       },
-    })
+    }),
   );
 
   // 初始化
@@ -985,10 +996,11 @@ const CategoryConfig = ({
   const [orderChanged, setOrderChanged] = useState(false);
   const [newCategory, setNewCategory] = useState<CustomCategory>({
     name: '',
-    type: 'movie',
+    type: '动漫',
     query: '',
+    doubanType: 'tv',
     disabled: false,
-    from: 'config',
+    from: 'custom',
   });
 
   // 检测存储类型是否为 d1 或 upstash
@@ -1011,7 +1023,7 @@ const CategoryConfig = ({
         delay: 150, // 长按 150ms 后触发，避免与滚动冲突
         tolerance: 5,
       },
-    })
+    }),
   );
 
   // 初始化
@@ -1045,7 +1057,7 @@ const CategoryConfig = ({
     }
   };
 
-  const handleToggleEnable = (query: string, type: 'movie' | 'tv') => {
+  const handleToggleEnable = (query: string, type: string) => {
     const target = categories.find((c) => c.query === query && c.type === type);
     if (!target) return;
     const action = target.disabled ? 'enable' : 'disable';
@@ -1054,25 +1066,33 @@ const CategoryConfig = ({
     });
   };
 
-  const handleDelete = (query: string, type: 'movie' | 'tv') => {
+  const handleDelete = (query: string, type: string) => {
     callCategoryApi({ action: 'delete', query, type }).catch(() => {
       console.error('操作失败', 'delete', query, type);
     });
   };
 
   const handleAddCategory = () => {
-    if (!newCategory.name || !newCategory.query) return;
+    const name = (newCategory.name || '').trim();
+    const type = (newCategory.type || '').trim();
+    const query = (newCategory.query || '').trim();
+    if (!name || !type || !query) return;
+
     callCategoryApi({
       action: 'add',
-      name: newCategory.name,
-      type: newCategory.type,
-      query: newCategory.query,
+      name,
+      type,
+      query,
+      doubanType: normalizeDoubanType(
+        newCategory.doubanType || newCategory.type,
+      ),
     })
       .then(() => {
         setNewCategory({
           name: '',
-          type: 'movie',
+          type: '动漫',
           query: '',
+          doubanType: 'tv',
           disabled: false,
           from: 'custom',
         });
@@ -1088,10 +1108,10 @@ const CategoryConfig = ({
     const { active, over } = event;
     if (!over || active.id === over.id) return;
     const oldIndex = categories.findIndex(
-      (c) => `${c.query}:${c.type}` === active.id
+      (c) => `${c.query}:${c.type}` === active.id,
     );
     const newIndex = categories.findIndex(
-      (c) => `${c.query}:${c.type}` === over.id
+      (c) => `${c.query}:${c.type}` === over.id,
     );
     setCategories((prev) => arrayMove(prev, oldIndex, newIndex));
     setOrderChanged(true);
@@ -1141,15 +1161,25 @@ const CategoryConfig = ({
           {category.name || '-'}
         </td>
         <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100'>
-          <span
-            className={`px-2 py-1 text-xs rounded-full ${
-              category.type === 'movie'
-                ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300'
-                : 'bg-purple-100 dark:bg-purple-900/20 text-purple-800 dark:text-purple-300'
-            }`}
-          >
-            {category.type === 'movie' ? '电影' : '电视剧'}
-          </span>
+          <div className='flex items-center gap-2'>
+            <span
+              className={`px-2 py-1 text-xs rounded-full ${
+                category.type === 'movie'
+                  ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300'
+                  : category.type === 'tv'
+                    ? 'bg-purple-100 dark:bg-purple-900/20 text-purple-800 dark:text-purple-300'
+                    : 'bg-orange-100 dark:bg-orange-900/20 text-orange-800 dark:text-orange-300'
+              }`}
+            >
+              {getCategoryTypeLabel(category.type)}
+            </span>
+            <span className='px-2 py-1 text-xs rounded-full bg-gray-100 dark:bg-gray-700/40 text-gray-700 dark:text-gray-200'>
+              豆瓣:{' '}
+              {(category.doubanType || category.type) === 'movie'
+                ? '电影'
+                : '剧集'}
+            </span>
+          </div>
         </td>
         <td
           className='px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100 max-w-[12rem] truncate'
@@ -1180,8 +1210,8 @@ const CategoryConfig = ({
               isD1Storage || isUpstashStorage
                 ? 'bg-gray-400 cursor-not-allowed text-white'
                 : !category.disabled
-                ? 'bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-300 hover:bg-red-200 dark:hover:bg-red-900/60'
-                : 'bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300 hover:bg-green-200 dark:hover:bg-green-900/60'
+                  ? 'bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-300 hover:bg-red-200 dark:hover:bg-red-900/60'
+                  : 'bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300 hover:bg-green-200 dark:hover:bg-green-900/60'
             } transition-colors`}
           >
             {!category.disabled ? '禁用' : '启用'}
@@ -1251,19 +1281,18 @@ const CategoryConfig = ({
               }
               className='px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100'
             />
-            <select
+            <input
+              type='text'
+              placeholder='分组类型（如：动漫、AI短剧）'
               value={newCategory.type}
               onChange={(e) =>
                 setNewCategory((prev) => ({
                   ...prev,
-                  type: e.target.value as 'movie' | 'tv',
+                  type: e.target.value,
                 }))
               }
               className='px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100'
-            >
-              <option value='movie'>电影</option>
-              <option value='tv'>电视剧</option>
-            </select>
+            />
             <input
               type='text'
               placeholder='搜索关键词'
@@ -1273,11 +1302,30 @@ const CategoryConfig = ({
               }
               className='px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100'
             />
+            <select
+              value={normalizeDoubanType(
+                newCategory.doubanType || newCategory.type,
+              )}
+              onChange={(e) =>
+                setNewCategory((prev) => ({
+                  ...prev,
+                  doubanType: e.target.value as 'movie' | 'tv',
+                }))
+              }
+              className='px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100'
+            >
+              <option value='tv'>豆瓣按剧集检索</option>
+              <option value='movie'>豆瓣按电影检索</option>
+            </select>
           </div>
           <div className='flex justify-end'>
             <button
               onClick={handleAddCategory}
-              disabled={!newCategory.name || !newCategory.query}
+              disabled={
+                !(newCategory.name || '').trim() ||
+                !(newCategory.type || '').trim() ||
+                !(newCategory.query || '').trim()
+              }
               className='w-full sm:w-auto px-4 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white rounded-lg transition-colors'
             >
               添加

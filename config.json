@@ -672,11 +672,18 @@
       "detail": "https://gaosuzy.com"
     }
   },
-    "custom_category": [
+  "custom_category": [
     {
       "name": "动漫",
       "type": "动漫",
-      "query": "动漫"
+      "query": "动漫",
+      "doubanType": "tv"
+    },
+    {
+      "name": "AI短剧",
+      "type": "AI短剧",
+      "query": "短剧",
+      "doubanType": "tv"
     }
   ]
 }
